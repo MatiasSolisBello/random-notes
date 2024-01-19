@@ -1,22 +1,22 @@
-class Employee:
-    def __init__(self, name, salary):
-        self.name = name
-        self.salary = salary
+# Doblar cada elemento de una lista de números.
+numbers = [1,5,10,50]
+result = map(lambda n1: n1 * 2, numbers)
+print('1.- ', list(result))
 
-    def __str__(self):
-        return "{} - ${}".format(self.name, self.salary)
+# Convertir cada elemento de una lista de temperaturas de Celsius a Fahrenheit.
+celsius_values = [15, 20, 30, 35]
+result = map(lambda celsius: (celsius*9/5)+32, celsius_values)
+print('2.- ', list(result))
 
-listEmployee = [
-    Employee("John", 35000),
-    Employee("Alex", 39000),
-    Employee("Matttew", 60000),
-    Employee("George", 4000),
-]
+# Calcular la longitud de cada palabra en una lista de cadenas.
+words = ['Hola', 'Mundo']
+result = map(lambda word:len(word), words)
+print('3.- ', list(result))
 
-def calculate_new_salary(emp):
-    emp.salary=emp.salary*1.03
-    return emp
+# Elevar al cuadrado cada elemento de una lista de números.
+result = map(lambda n1: n1 ** 2, numbers)
+print('4.- ', list(result))
 
-list_new_salarys=map(calculate_new_salary, listEmployee)
-for i in list_new_salarys:
-    print(i)
+# Convertir a mayúsculas cada palabra en una lista de cadenas.
+result = map(lambda word:word.upper(), words)
+print('5.- ', list(result))
