@@ -137,8 +137,6 @@ Docker daemon: Es el corazón de docker, gracias a el podemos administrar los co
 
 ![https://arquitectoit.com/images/dockers/docker-engine-components.png](https://arquitectoit.com/images/dockers/docker-engine-components.png)
 
-
-
 **¿Qué es Dockerfile?**
 
 Es un archivo de texto plano que contiene un conjunto de instrucciones que Docker utiliza para construir una imagen.
@@ -198,8 +196,6 @@ docke push my-username/repo-name
 docker pull redis:latest
 ```
 
-
-
 **Inspección y monitoreo de contenedores**
 
 ```shell
@@ -210,19 +206,144 @@ docker logs -f container-name
 
 # Ver estadisticas de consumo de recursos
 docker stats container-name
-
-
-
 ```
-
-
 
 **Redes en Docker**
 
 Las redes son una funcionalidad que permite la comuncación entre contenedores y/o el mundo exterior.
 
+Listar redes (de la computadora)
+
+```shell
+docker network ls
+```
+
+Crear nueva red
+
+```shell
+docker network create my-network
+```
+
+```shell
+docker network disconnect my-network
+```
+
+```shell
+docker network rm my-network
+```
+
+**Volumenes y Bind Mounts**
+
+En caso de que el contenedor tenga datos importantes que no queremos perder, y por error eliminamos el contenedor, debemos usar volumenes o Bind Mounts.
+
+Los **volumenes** son el mecanismo preferido en producción para conservar los datos generados y utilizados por los contenedores Docker para guardarlos en un area de docker. 
+
+Los **Bind Mounts** o montajes vinculados tienen una funcionalidad limitada en comparacion con los volumenes. Cuando utiliza un montaje de enlace, archivo o directorio en la maquina host se monta en el sistema de archivos (*Filesystem*) de contenedor, lo malo de esto, es que los datos quedan expuestos. Son perfectos para practicar.
+
+<img src="https://miro.medium.com/v2/resize:fit:746/1*bViAujGNZjJQrmhfN6IRsQ.png" title="" alt="https://miro.medium.com/v2/resize:fit:746/1*bViAujGNZjJQrmhfN6IRsQ.png" data-align="center">
+
+Ejemplo con mongo:
+
+```shell
+mkdir mongodb_data
+
+# -v: crea volumen en x carpeta
+docker run -d --name my-mongodb-container -v "/mongodb_data/:/datadb" mongo:latest
+
+# Ejecutar comandos en el contenedor
+docker exec -it my-mongodb-container bash
+
+# Acceder a consola de mongo
+mongosh
+
+show databases
+use dbprueba
+db.users.insert({"name": "Frederick"})
+db.users.find()
+exit
+
+# Detener y borrar contenedor
+docker stop my-mongodb-container
+docker rm my-mongodb-container
+```
+
+Ejemplo con MySQL:
+
+```shell
+docker run --name mysql-container -v "/mysql_bd:/var/lib/mysql" -e MYSQL_ROOT_PASSWORD -D mysql
+docker exec -it mysql-container bash
+mysql -u root -p
+create database test1;
+show databases;
+exit
+```
+
+Ejemplo de volumen con mongo
+
+```shell
+docker volume create db_mongo
+docker volume ls
+
+
+docker run -d --name my-mongodb-container -mount src=db_mongo, dst=/data
+
+```
 
 
 
+**Docker Compose**
+
+Herramienta que permite trabajar con multiples contenedores al mismo tiempo
+
+
+
+docker-compse.yaml
+
+```yaml
+
+version: '3.8'
+
+services:
+
+  #Servicio para la base de datos
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: user
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - backend
+
+  #Servicio para la aplicación web
+  web:
+    image: nginx:alpine
+    depends_on:
+      - db
+    ports:
+      - "8080:80"
+    volumes:
+      - html_volume:/usr/share/nginx/html
+      - config_volume:/etc/nginx/conf.d
+    networks:
+      - frontend
+      - backend
+
+volumes:
+  html_volume:
+  config_volume:
+  db_data:
+
+networks:
+  frontend:
+  backend:
+```
+
+```shell
+# Ejecutar en carpeta del proyecto
+docker-compose up -d
+```
 
 
