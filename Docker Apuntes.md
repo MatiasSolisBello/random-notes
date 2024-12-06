@@ -1,5 +1,9 @@
 # Apuntes de Docker
 
+## Indice
+
+[Gestión de contenedores](#gestión-de-contenedores)
+
 **¿Qué es docker?**
 
 Proyecto de codigo abierto que **automatiza el despliegue de aplicaciones dentro de contenedores**. Por contenedor, nos referimos a un "recipiente" que contiene todas las librerias y componentes necesarios de manera aislada para ejecutar el sofware y que puede ser transportado a cualquier computador.
@@ -87,7 +91,7 @@ docker rm (nombre o id de contenedor)
 docker rmi hello-world
 ```
 
-**Gestión de contenedores**
+## Gestión de contenedores
 
 Poner "nombre" a contenedor
 
