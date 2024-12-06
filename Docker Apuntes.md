@@ -128,20 +128,20 @@ docker run -it --rm -d -p 8080:80 --name web nginx:latest
 ```
 
 ```shell
-docker stop alwaysup
+docker stop container-id
 ```
 
 **Arquitectura de Docker**
 
 Docker daemon: Es el corazón de docker, gracias a el podemos administrar los contenedores, Esta herramienta tiene una REST API que se conecta con docker CLI. De esta forma podemos administrar los contenedores.
 
-![https://arquitectoit.com/images/dockers/docker-engine-components.png](https://arquitectoit.com/images/dockers/docker-engine-components.png)
+<img title="" src="https://arquitectoit.com/images/dockers/docker-engine-components.png" alt="https://arquitectoit.com/images/dockers/docker-engine-components.png" data-align="center" width="363">
 
 **¿Qué es Dockerfile?**
 
 Es un archivo de texto plano que contiene un conjunto de instrucciones que Docker utiliza para construir una imagen.
 
-![](https://miro.medium.com/v2/resize:fit:1400/0*CP98BIIBgMG2K3u5.png)
+<img title="" src="https://miro.medium.com/v2/resize:fit:1400/0*CP98BIIBgMG2K3u5.png" alt="" data-align="center" width="613">
 
 ```dockerfile
 # Indicamos la imagen que vamos a utilizar
@@ -240,7 +240,7 @@ Los **volumenes** son el mecanismo preferido en producción para conservar los d
 
 Los **Bind Mounts** o montajes vinculados tienen una funcionalidad limitada en comparacion con los volumenes. Cuando utiliza un montaje de enlace, archivo o directorio en la maquina host se monta en el sistema de archivos (*Filesystem*) de contenedor, lo malo de esto, es que los datos quedan expuestos. Son perfectos para practicar.
 
-<img src="https://miro.medium.com/v2/resize:fit:746/1*bViAujGNZjJQrmhfN6IRsQ.png" title="" alt="https://miro.medium.com/v2/resize:fit:746/1*bViAujGNZjJQrmhfN6IRsQ.png" data-align="center">
+<img title="" src="https://miro.medium.com/v2/resize:fit:746/1*bViAujGNZjJQrmhfN6IRsQ.png" alt="https://miro.medium.com/v2/resize:fit:746/1*bViAujGNZjJQrmhfN6IRsQ.png" data-align="center" width="520">
 
 Ejemplo con mongo:
 
@@ -286,21 +286,15 @@ docker volume ls
 
 
 docker run -d --name my-mongodb-container -mount src=db_mongo, dst=/data
-
 ```
-
-
 
 **Docker Compose**
 
 Herramienta que permite trabajar con multiples contenedores al mismo tiempo
 
-
-
 docker-compse.yaml
 
 ```yaml
-
 version: '3.8'
 
 services:
@@ -345,5 +339,3 @@ networks:
 # Ejecutar en carpeta del proyecto
 docker-compose up -d
 ```
-
-
