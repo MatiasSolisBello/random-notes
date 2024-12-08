@@ -2,13 +2,22 @@
 
 ## Indice
 
-[Gestión de contenedores](#gestión-de-contenedores)
+[¿Qué es docker?](#qué-es-docker)
+[¿Por que usar Docker?](#por-que-usar-doker)
+[Qué es una maquina virtual](#qué-es-una-maquina-virtual)
+[Docker vs Maquinas virtuales](#docker-vs-maquinas-virtuales)
+[¿Qué es un contenedor?](#¿Que-es-un-contenedor)
+[Instalar docker](#instalar-docker)
 
-**¿Qué es docker?**
+
+[Gestión de contenedores](#gestión-de-contenedores)
+[ Arquitectura de Docker](#arquitectura-de-docker)
+
+## ¿Qué es docker?
 
 Proyecto de codigo abierto que **automatiza el despliegue de aplicaciones dentro de contenedores**. Por contenedor, nos referimos a un "recipiente" que contiene todas las librerias y componentes necesarios de manera aislada para ejecutar el sofware y que puede ser transportado a cualquier computador.
 
-**¿Por que usar Docker?**
+## ¿Por que usar Docker?
 
 * Portabilidad
 
@@ -16,23 +25,23 @@ Proyecto de codigo abierto que **automatiza el despliegue de aplicaciones dentro
 
 * Eficiencia de recursos (en comparación con una maquina virtual)
 
-**Antes de empezar ¿Qué es una maquina virtual?**
+## ¿Qué es una maquina virtual?
 
 Una VM son **entornos de computación** (Sistema operativo, RAM, CPU, entre otros) completamente independientes y virtualizados que se ejecutan dentro de un **hipervisor**(supervisor encargado de crear VM) en un servidor fisico.
 
 Por **virtualizacion** se entiende por la capacidad de crear varios entornos virtuales(VM)
 
-**Docker vs Maquinas virtuales**
+## Docker vs Maquinas virtuales
 
 La principal diferencia es el *uso del sistema operatiivo y el uso de recursos*:
 
 ![docker-vs-virtual-machine](https://guias.donweb.com/wp-content/uploads/2022/01/docker-vs-virtual-machine.png)
 
-**¿Qué es un contenedor?**
+## ¿Qué es un contenedor?
 
 Es una unidad de software ligera y portatil que encapsula una aplicación junto con todas sus dependencias y bibliotecas.
 
-**Instalar docker**
+## Instalar docker
 
 * **Requerimientos:**
   
@@ -135,7 +144,7 @@ docker run -it --rm -d -p 8080:80 --name web nginx:latest
 docker stop container-id
 ```
 
-**Arquitectura de Docker**
+## Arquitectura de Docker
 
 Docker daemon: Es el corazón de docker, gracias a el podemos administrar los contenedores, Esta herramienta tiene una REST API que se conecta con docker CLI. De esta forma podemos administrar los contenedores.
 
