@@ -3,14 +3,19 @@
 ## Indice
 
 [¿Qué es docker?](#qué-es-docker)
-[¿Por que usar Docker?](#por-que-usar-doker)
+
+[¿Por que usar Docker?](#por-que-usar-docker)
+
 [Qué es una maquina virtual](#qué-es-una-maquina-virtual)
+
 [Docker vs Maquinas virtuales](#docker-vs-maquinas-virtuales)
-[¿Qué es un contenedor?](#¿Que-es-un-contenedor)
+
+[¿Qué es un contenedor?](#qué-es-un-contenedor)
+
 [Instalar docker](#instalar-docker)
 
-
 [Gestión de contenedores](#gestión-de-contenedores)
+
 [ Arquitectura de Docker](#arquitectura-de-docker)
 
 ## ¿Qué es docker?
