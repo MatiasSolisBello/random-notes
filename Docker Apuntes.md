@@ -14,9 +14,21 @@
 
 [Instalar docker](#instalar-docker)
 
+[Gestión de imagenes](#gestión-de-imagenes)
+
 [Gestión de contenedores](#gestión-de-contenedores)
 
-[ Arquitectura de Docker](#arquitectura-de-docker)
+[Arquitectura de Docker](#arquitectura-de-docker)
+
+[Docker Hub](#docker-hub)
+
+[Redes en Docker](#redes-en-docker)
+
+[Volumenes y Bind Mounts](#volumenes-y-bind-mounts)
+
+[Docker Compose](#docker-compose)
+
+---
 
 ## ¿Qué es docker?
 
@@ -38,7 +50,7 @@ Por **virtualizacion** se entiende por la capacidad de crear varios entornos vir
 
 ## Docker vs Maquinas virtuales
 
-La principal diferencia es el *uso del sistema operatiivo y el uso de recursos*:
+La principal diferencia es el *uso del sistema operativo y el uso de recursos*:
 
 ![docker-vs-virtual-machine](https://guias.donweb.com/wp-content/uploads/2022/01/docker-vs-virtual-machine.png)
 
@@ -78,7 +90,7 @@ Listar los contenedores
 docker ps -a
 ```
 
-**Gestión de imagenes en docker**
+## Gestión de imagenes
 
 Lista de imagenes
 
@@ -197,7 +209,7 @@ docker run -d --name my-wea nginx:latest
 docker exec -it my-wea ls /usr/share/nginx/html
 ```
 
-**Docker Hub**
+## Docker Hub
 
 Es un repositorio de imagenes en Docker es un lugar donde puedes almacenar y compartir imagenes de contenedores de Docker
 
@@ -226,7 +238,7 @@ docker logs -f container-name
 docker stats container-name
 ```
 
-**Redes en Docker**
+## Redes en Docker
 
 Las redes son una funcionalidad que permite la comuncación entre contenedores y/o el mundo exterior.
 
@@ -250,7 +262,7 @@ docker network disconnect my-network
 docker network rm my-network
 ```
 
-**Volumenes y Bind Mounts**
+## Volumenes y Bind Mounts
 
 En caso de que el contenedor tenga datos importantes que no queremos perder, y por error eliminamos el contenedor, debemos usar volumenes o Bind Mounts.
 
@@ -306,7 +318,7 @@ docker volume ls
 docker run -d --name my-mongodb-container -mount src=db_mongo, dst=/data
 ```
 
-**Docker Compose**
+## Docker Compose
 
 Herramienta que permite trabajar con multiples contenedores al mismo tiempo
 
