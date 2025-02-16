@@ -157,16 +157,48 @@ passwd -S usuario | Muestra el estado de la contraseña de un usuario.
 
 ## Iptables
 
-Firewall: Bloquear acceso a usuarios no autorizados
+Iptables es un sistema de firewall (bloquear acceso a usuarios no autorizados) vinculado al kernel de linux
+
+* INPUT → Maneja paquetes dirigidos a la máquina.
+* OUTPUT → Maneja paquetes salientes.
+* FORWARD → Maneja tráfico que atraviesa la máquina (por ejemplo, en un router).
 
 Comando  | Descripción
 ------------- | -------------
+iptables -A | Agrega nueva regla
+iptables -L | Lista reglas actuales
+iptables -j *Acción* | Acepta/Rechaza/Desecha
+iptables -D | Elimina regla
+-i | Interfaz de entrada
+-o | Interfaz de salida
+
+
 ip a | Muestra las interfaces de red y direcciones IP.
 netstat -tulnp | Muestra los puertos en uso y servicios activos.
 iptables -L -v -n | Lista las reglas de firewall activas.
 iptables -A INPUT -p tcp --dport 22 -j ACCEPT | Permite conexiones SSH en el puerto 22.
 iptables -A INPUT -p tcp --dport 80 -j DROP | Bloquea conexiones en el puerto 80.
 iptables -F | Borra todas las reglas activas.
+
+'''shell
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT  # Permite SSH
+iptables -A INPUT -p icmp -j ACCEPT  # Permite ping
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT  # Permite tráfico HTTPS saliente
+iptables -A FORWARD -p tcp --dport 80 -j ACCEPT  # Permite tráfico web que atraviesa la máquina
+
+
+iptables -P INPUT DROP   # Bloquear todo el tráfico entrante por defecto
+iptables -P FORWARD DROP  # Bloquear todo el tráfico reenviado
+iptables -P OUTPUT ACCEPT  # Permitir todo el tráfico saliente
+
+
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT  # Permite tráfico relacionado
+'''
+
+
+
+
+
 
 
 
