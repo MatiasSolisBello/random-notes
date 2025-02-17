@@ -6,6 +6,8 @@
 
 [Información del sistema](#información-del-sistema)
 
+[Find](#find)
+
 [Gestión de archivos y directorios](#gestión-de-archivos-y-directorios)
 
 [Usuarios](#usuarios)
@@ -44,15 +46,32 @@ tail -n5 *file*  | Visualizar ultimas 5 lineas
 tail -f *file* | Ver modificaciones en tiempo real
 less | Ver contenido paginado
 cp   | Copiar ficheros o directorios(cp opcion /ruta_origen /destino)
+sort *archivo* | Ordena líneas de texto alfabética o numéricamente
+sort -r *archivo*  | Ordena en orden inverso
+sort -n *archivo*  | Ordena números (en lugar de alfabéticamente)
+sort -k2,2 *archivo*  | Ordena por la segunda columna
+grep | Busca texto dentro de archivos o entrada estándar
+grep "error" logs.txt  | Busca la palabra "error" en logs.txt
+grep -i "error" logs.txt  | Búsqueda sin distinguir mayúsculas/minúsculas
+grep -r "error" /var/logs  | Busca recursivamente en una carpeta
+grep -E "error|warning" logs.txt  | Busca varias palabras con expresiones regulares
+tar | Empaqueta múltiples archivos en uno solo.
+tar -cvf backup.tar carpeta/  | Crea un archivo tar de una carpeta
+tar -xvf backup.tar  | Extrae el contenido de un archivo tar
+tar -tvf backup.tar  | Lista los archivos dentro de un tar
+tar -cvzf backup.tar.gz carpeta/  | Crea un tar y lo comprime con gzip
+tar -xvzf backup.tar.gz  | Extrae un archivo tar.gz
+gzip | comprime archivos individuales
+gunzip | descomprime archivos
+gzip archivo.txt  | Comprime archivo.txt a archivo.txt.gz
+gunzip archivo.txt.gz  | Descomprime archivo.txt.gz a archivo.txt
+gzip -d archivo.txt.gz  | Alternativa a gunzip para descomprimir
+gzip -9 archivo.txt  | Máxima compresión
 mv */ruta* */destino* | Mover o renombrar
 rm | Eliminar
 rm -rf | Forzar eliminacion de directorio
 mkdir | Crear directorio
 rmdir | Eliminar directorio vacio
-chmod | Cambia los permisos de un archivo
-chown *usuario:grupo fich* | chown *usuario:grupo fich*
-
-opciones de find, lspci, uname
 
 
 ## Información del sistema
@@ -71,11 +90,22 @@ top o htop  |  Muestra procesos en ejecución y uso de CPU/RAM.
 ps aux  |  Lista todos los procesos en ejecución.
 uptime  |  Muestra el tiempo de actividad del sistema.
 
+## Find
+
+Comando  | Descripción
+------------- | -------------
+find / | Busca en todo el sistema de archivos (puedes especificar otro directorio en lugar de / si lo deseas).
+find / -type f | Filtra solo archivos (excluye directorios).
+find -name "*.mp4" | Busca archivos con extensión .mp4
+find -name "*.mp4" -size +100M | Filtra archivos mp4 con un tamaño mayor a 100MB
+find / -type d | lista de todos los directorios presentes en tu sistema de archivo
+find / -type f -name *fichero* | Busca fichero por nombre
+
+
 ## Gestión de archivos y directorios
 
 Comando  | Descripción
 ------------- | -------------
-find /ruta -name "*.txt" | Busca archivos con extensión .txt.
 grep "texto" archivo.txt | Busca "texto" dentro de un archivo.
 tar -cvf archivo.tar carpeta/ | Comprime una carpeta en un archivo .tar.
 tar -xvf archivo.tar | Extrae un archivo .tar.
@@ -99,7 +129,6 @@ cat /etc/passwd | Usuarios creados
 cat /etc/group | Lista de grupos
 
 useradd -c "comentario" -u *id_user* -m -d *ruta*
-
 
 
 Comando  | Descripción
@@ -144,15 +173,20 @@ chage -l *username* | Ver info. valiosa del password
 
 Comando  | Descripción
 ------------- | -------------
-chmod | Modifica permisos
-chmod g+rwx | Otorga permisos de lectura, escritura y ejecución al grupo
-chgrp | Cambia grupo de archivo o directorio
-chown | Cambia usuario y grupo de archivo
-chmod 755 archivo | Asigna permisos en formato numérico.
-chown -R usuario:grupo carpeta/ | Cambia recursivamente el dueño de una carpeta y su contenido.
-passwd -S usuario | Muestra el estado de la contraseña de un usuario.
+chmod 777 *archivo* | Otorga todos los permisos 
+chmod -x *archivo* | Quita permiso de ejecución
+chmod g-w *archivo* | Quita permiso de escribir al **grupo**
+chmod g+rwx | Otorga permisos de lectura, escritura y ejecución al **grupo**
+chmod a+rwx | Otorga todos los permisos a todos(a=all)
 
 ![Permisos](https://computernewage.com/wp-content/uploads/2015/06/representacion-permisos-en-linux1.png)
+
+Comando  | Descripción
+------------- | -------------
+chown *username* *fichero* | Cambia propietario del fichero segun el usuario indicado (*chown = change owner*)
+chown -R usuario:grupo carpeta/ | Cambia recursivamente el dueño de una carpeta y su contenido.
+chgrp *group* *fichero* | Cambia grupo de archivo o directorio (*chgrp = change group*)
+passwd -S usuario | Muestra el estado de la contraseña de un usuario.
 
 
 ## Iptables
@@ -167,12 +201,14 @@ Comando  | Descripción
 ------------- | -------------
 iptables -A | Agrega nueva regla
 iptables -L | Lista reglas actuales
-iptables -j *Acción* | Acepta/Rechaza/Desecha
+iptables -j *Acción* | ACCEPT/DROP/REJECT
 iptables -D | Elimina regla
 -i | Interfaz de entrada
 -o | Interfaz de salida
 
 
+Comando  | Descripción
+------------- | -------------
 ip a | Muestra las interfaces de red y direcciones IP.
 netstat -tulnp | Muestra los puertos en uso y servicios activos.
 iptables -L -v -n | Lista las reglas de firewall activas.
@@ -180,7 +216,7 @@ iptables -A INPUT -p tcp --dport 22 -j ACCEPT | Permite conexiones SSH en el pue
 iptables -A INPUT -p tcp --dport 80 -j DROP | Bloquea conexiones en el puerto 80.
 iptables -F | Borra todas las reglas activas.
 
-'''shell
+```shell
 iptables -A INPUT -p tcp --dport 22 -j ACCEPT  # Permite SSH
 iptables -A INPUT -p icmp -j ACCEPT  # Permite ping
 iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT  # Permite tráfico HTTPS saliente
@@ -193,7 +229,7 @@ iptables -P OUTPUT ACCEPT  # Permitir todo el tráfico saliente
 
 
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT  # Permite tráfico relacionado
-'''
+```
 
 
 
