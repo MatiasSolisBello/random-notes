@@ -11,6 +11,8 @@
 
 [Funciones](#funciones)
 
+[Admin de BD](#admin-de-bd)
+
 ---
 
 ## Indices
@@ -220,7 +222,133 @@ SELECT GetActiveCustomers();
 Las funciones en SQL permiten encapsular lógica, mejorar el mantenimiento del código y optimizar el rendimiento de las consultas. Su uso adecuado facilita la organización y eficiencia en la gestión de bases de datos.
 
 
+## Admin de BD
+
+### Tablespace
+Un tablespace es una unidad lógica de almacenamiento en Oracle Database que agrupa objetos como tablas e índices. Sirve para gestionar de manera eficiente el almacenamiento de datos, segmentando la base de datos en espacios organizados según su uso. Cada tablespace está compuesto por uno o más archivos físicos llamados datafiles.
+
+Tipos de tablespaces:
+* SYSTEM y SYSAUX: Contienen objetos del diccionario de datos y estructuras internas.
+* USERS: Espacio por defecto para usuarios sin un tablespace asignado.
+* TEMP: Utilizado para operaciones temporales como sorting.
+* UNDO: Maneja transacciones para soportar ROLLBACK y CONSISTENCIA.
+* DATA y INDEX: Pueden ser creados por administradores para almacenar datos y optimizar consultas.
+
+```sql
+// Crear tablespace con 10M
+CREATE TABLESPACE tablespace_name DATAFILE '/ruta' SIZE 10M;
+
+// Agregarle 100M
+ALTER TABLESPACE tablespace_name ADD DATAFILE '/ruta' size 100M;
+
+// Aumentamos complejidad
+CREATE TABLESPACE tablespace_name
+DATAFILE '/u01/app/oracle/oradata/mi_tablespace01.dbf'  //Ubicación física del archivo de datos.
+SIZE 500M  //Tamaño inicial de 500 MB.
+AUTOEXTEND ON NEXT 100M MAXSIZE 2G //Crecimiento automático de 100 MB hasta 2 GB
+EXTENT MANAGEMENT LOCAL //Gestión de extents dentro del tablespace (modo recomendado)
+SEGMENT SPACE MANAGEMENT AUTO; //Usa algoritmos automáticos para manejar espacio en segmentos
+```
+
+### Perfiles de usuario (Profiles)
+Un perfil en Oracle define restricciones y límites para la gestión de recursos de un usuario. Se usa para aplicar políticas de seguridad y control de recursos.
+
+```sql
+CREATE USER username IDENTIFIED BY password DEFAULT TABLESPACE tablespace_name
+QUOTA 20M ON tablespace_name PROFILE profile_name;
+
+DROP USER username CASCADE;
+DROP PROFILE profile_name;
+
+ALTER USER username PROFILE profile_name;
+```
+
+Parámetros comunes en un perfil:
+* CONNECT_TIME: Tiempo permitido de conexión por sesión en minutos
+* CPU_PER_CALL: Máximo tiempo de CPU por llamada en centésimas de segundo
+* CPU_PER_CALL: Máximo tiempo de CPU por llamada en centésimas de segundo.
+* CPU_PER_SESSION: Límite de uso de CPU por sesión.
+* IDLE_TIME: Tiempo máximo permitido sin actividad por el usuario antes de ser desconectado. Se expresa en minutos.
+* LOGICAL_READS_PER_CALL: Máximo número de bloques de base de datos leídos por llamada
+* LOGICAL_READS_PER_SESSION: Máximo número de bloques de base de datos leídos por sesión.
+* PRIVATE_SGA: Máxima cantidad de bytes de espacio privado reservado en la SGA. Se puede expresar en el formato entero K para kilobytes o entero M para megabytes.
+* SESSIONS_PER_USER: Máximo número de sesiones concurrentes permitidas por usuario
+
+* IDLE_TIME:
+* SESSIONS_PER_USER: Número máximo de sesiones simultáneas.
+* FAILED_LOGIN_ATTEMPTS: Intentos fallidos antes de bloquear la cuenta.
+* PASSWORD_GRACE_TIME: Número de días de gracia para realizar un cambio de password de nuestra cuenta. Si en el periodo de tiempo delimitado no fue cambiado el password, el password expira
+* PASSWORD_LIFE_TIME: Número de días de vida de un password.
+* PASSWORD_LOCK_TIME: Número de días que permanecerá bloqueado un usuario después de sobrepasar el límite FAILED_LOGIN_ATTEMPTS.
+* PASSWORD_REUSE_MAX: Número de veces que debe cambiar una contraseña antes de poder ser re-usada la original.
+* PASSWORD_REUSE_TIME: Número de días que tienen que pasar para poder re-usar un password.
+* PASSWORD_VERIFY_FUNCTION: En este parámetro, se puede especificar un script para validar el password. Por ejemplo, que tenga una determinada cantidad de caracteres, que tenga letras y números. 
+
+
+### Privilegios o Permisos
+Los privilegios determinan qué operaciones puede realizar un usuario en la base de datos. Se dividen en:
+
+* Privilegios del sistema: Permiten ejecutar acciones administrativas. Ejemplos:
+    * CREATE SESSION (permite conectarse a la BD).
+    * CREATE TABLE (permite crear tablas).
+    * ALTER USER (modificar usuarios).
+ 
+    * ```sql
+        GRANT privilegio TO user;
+        REVOKE privilegio FROM user;
+        
+        // Examples
+        GRANT
+            CREATE SESSION, ALTER SESSION, CREATE TABLE, 
+            CREATE VIEW, CREATE SYNONYM, CREATE SEQUENCE, 
+            CREATE TRIGGER, CREATE PROCEDURE, CREATE TYPE 
+        TO alumno;
+        ```
+
+* Privilegios de objeto: Permiten realizar acciones sobre objetos específicos. Ejemplos:
+    * SELECT, INSERT, UPDATE, DELETE en tablas.
+    * EXECUTE en procedimientos almacenados.
+    * ```sql
+      GRANT privilegio
+      ```
+
+### Roles
+Un rol es un grupo de privilegios que puede asignarse a usuarios para facilitar la gestión de permisos.
+
+Tipos de roles:
+    * Predefinidos por Oracle:
+        * CONNECT: Permite conexión básica a la BD.
+        * RESOURCE: Permite crear objetos de base de datos.
+        * DBA: Otorga privilegios administrativos completos.
+    * Definidos por el usuario: Se pueden crear roles personalizados con CREATE ROLE.
+    
+Los roles se asignan con GRANT ROLE TO usuario; y se pueden eliminar con DROP ROLE nombre_rol;.
+```sql
+CREATE ROLE analista;
+
+// Asignar privilegios a un rol
+GRANT SELECT, INSERT, UPDATE ON empleados TO analista;
+GRANT SELECT ON clientes TO analista;
+
+// Asignar un rol a un usuario
+GRANT analista TO usuario1;
+
+//  Ver roles asignados a un usuario
+SELECT granted_role FROM dba_role_privs WHERE grantee = 'USUARIO1';
+
+// Revocar un rol a un usuario
+REVOKE analista FROM usuario1;
+
+// Ver todos los roles disponibles en la base de datos
+SELECT role FROM dba_roles;
+
+// Ver los privilegios asignados a un rol
+SELECT privilege FROM dba_sys_privs WHERE grantee = 'ANALISTA';
+
+// Ver qué usuarios tienen asignado un rol
+SELECT grantee FROM dba_role_privs WHERE granted_role = 'ANALISTA';
 
 
 
+```
 
