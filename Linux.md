@@ -27,10 +27,11 @@ Comando  | Descripción
 pwd  | Directorio actual
 cd | Mover a escritorio
 cd .. | Volver
-ls | Listar
 man ls  | Info detallada
-ls -l  | Usuario, grupo, archivo
-ls -a  | Muestra todo
+ls | Listar
+ls -l  | Muestra detalles como permisos, propietario, grupo, tamaño y fecha de modificación.
+ls -R | (recursive) Muestra el contenido de todos los subdirectorios de manera recursiva
+ls -a  | Muestra todos los archivos, incluidos los ocultos (que comienzan con .)
 rwx  |  Permisos del directorio (Conexiones, Propietaio, Grupo del propietario)
 d rwx  | Directorio
 -rwx | Fichero o archivo
@@ -99,7 +100,7 @@ find / -type f | Filtra solo archivos (excluye directorios).
 find -name "*.mp4" | Busca archivos con extensión .mp4
 find -name "*.mp4" -size +100M | Filtra archivos mp4 con un tamaño mayor a 100MB
 find / -type d | lista de todos los directorios presentes en tu sistema de archivo
-find / -type f -name *fichero* | Busca fichero por nombre
+find / -type f -name *fichero* | Busca fichero por nombre 
 
 
 ## Gestión de archivos y directorios
