@@ -1,3 +1,25 @@
+# Índice
+
+- [¿Qué es Terraform?](#qué-es-terraform)
+- [Descargar Terraform](#descargar-terraform)
+- [Provider](#provider)
+- [Resource](#resource)
+- [Comandos](#comandos)
+- [Modificaciones](#modificaciones)
+  - [NGINX](#nginx)
+  - [SSH Key](#ssh-key)
+  - [Security Group](#security-group)
+  - [Tags](#tags)
+- [Output](#output)
+- [Variables](#variables)
+- [Archivos](#archivos)
+- [Módulos](#módulos)
+- [Archivo de estado](#archivo-de-estado)
+- [Importar](#importar)
+- [Buenas practicas](#buenas-practicas)
+
+---
+
 # ¿Qué es Terraform?
 
 Herramienta de infraestructura como código (IaC)  para **automatizar** la creación, gestión y configuración de **infraestructura** de manera declarativa.
@@ -283,3 +305,13 @@ Podemos importar recursos ya existentes (EC2) para gestionarlos desde Terraform
 terraform import [nombre] [instance_id]
 terraform state show [nombre]
 ```
+
+# Buenas practicas
+
+* Organizar el codigo, empezar con un archivo unico, y al pasar el tiempo, dividirlo en varios archivos
+
+* Versionamiento con Git
+
+* Implementar Variables para evitar duplicados y optimizar el cambio de valores
+
+* Módulos para crear mas de una instancia
