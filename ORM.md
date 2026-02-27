@@ -1,19 +1,20 @@
-[ORM.md](https://github.com/user-attachments/files/25587279/ORM.md)
+[ORM.md](https://github.com/user-attachments/files/25612051/ORM.md)
 # Los problemas invisibles que matan el rendimiento en Django ⚠️
 
 ## Índice 📑
 
-- [Consultas N+1](#consultas-n1)
-- [Falta de índices en la base de datos](#falta-de-índices-en-la-base-de-datos)
-- [Evaluación prematura del QuerySet](#evaluación-prematura-del-queryset)
-- [Cargar datos innecesarios (overfetching)](#cargar-datos-innecesarios-overfetching)
-- [Falta de select_related / prefetch_related](#falta-de-select_related--prefetch_related)
-- [Uso incorrecto de count()](#uso-incorrecto-de-count)
-- [No usar transacciones correctamente](#no-usar-transacciones-correctamente)
-- [No usar bulk operations](#no-usar-bulk-operations)
-- [Uso eficiente de annotate()](#uso-eficiente-de-annotate)
-- [No usar django-debug-toolbar](#no-usar-django-debug-toolbar)
-- [Linkografía](#linkografía)
+- [Consultas N+1](#consultas-n1-)
+- [Falta de índices en la base de datos](#falta-de-índices-en-la-base-de-datos-)
+- [Evaluación prematura del QuerySet](#evaluación-prematura-del-queryset-)
+- [Cargar datos innecesarios (overfetching)](#cargar-datos-innecesarios-overfetching-)
+- [Falta de select_related / prefetch_related](#falta-de-select_related--prefetch_related-)
+- [Uso incorrecto de count()](#uso-incorrecto-de-count-)
+- [No usar transacciones correctamente](#no-usar-transacciones-correctamente-)
+- [No usar bulk operations](#no-usar-bulk-operations-)
+- [Uso eficiente de annotate()](#uso-eficiente-de-annotate-)
+- [No usar django-debug-toolbar](#no-usar-django-debug-toolbar-)
+- [No usar django-silk para profiling](#No-usar-django-silk-para-profiling-)
+- [Linkografía](#linkografía-)
 
 
 ## Consultas N+1 🐌
@@ -39,7 +40,7 @@ for post in posts:
 ## Falta de índices en la base de datos 📚
 Los índices optimizan la recuperación de información en una tabla, permitiendo consultas más rápidas sin necesidad de recorrer todos los registros.
 
-Este es probablemente el segundo problema más grave.
+Este es uno de los problemas más comunes en aplicaciones con grandes volúmenes de datos.
 ```python
 User.objects.filter(email="test@gmail.com")
 ```
@@ -53,13 +54,14 @@ class User(models.Model):
 
 
 ## Evaluación prematura del QuerySet ⚡
-Los QuerySets son lazy, pero muchos los evalúan accidentalmente.
+Los QuerySets son lazy, pero muchos los evalúan de forma erronea:
 ```python
 qs = User.objects.all()
 if len(qs) > 0:
 	...
 ```
-Correcto:
+
+Un uso correcto de es verificar su existencia con exists():
 ```python
 if qs.exists():
 ```
@@ -73,7 +75,7 @@ Al realizar una consulta donde necesitas todos los datos de una tabla. Ejecutar�
 users = User.objects.all()
 ```
 
-¿Y si solo necesitas el name (ademas del id)?
+Pero ¿Y si solo necesitas el name (ademas del id)? Debieras llamar solo a ese dato. Para eso existe only(), values() o values_list() dependiendo del tipo de estructura de datos que quieras retornar.
 
 ```python
 # Retorna una instancia del modelo
@@ -104,7 +106,7 @@ Ejemplo:
 Post.objects.select_related("author")
 ```
 
-En cambio **prefetch_related()** ejecuta consultas de base de datos separadas y combina los resultados en Python. Más adecuado para ManyToManyField y ForeignKey
+En cambio **prefetch_related()** ejecuta consultas de base de datos separadas y combina los resultados en Python. Más adecuado para ManyToMany, reverse ForeignKey, reverse OneToOne
 
 Ejemplo:
 ```python
@@ -116,6 +118,29 @@ for book in books:
         print(author.name)
 ```
 
+En casos más complejos, donde necesites usar prefetch_related + filtrado, ordernado, etc. Django proporciona el objeto Prefetch, que permite tener un control más preciso sobre cómo se cargan los datos relacionados.
+
+Esto es útil cuando necesitas:
+
+* Filtrar los objetos relacionados
+* Ordenarlos
+* O asignarlos a un atributo personalizado
+
+Ejemplo:
+```python
+from django.db.models import Prefetch
+
+books = Book.objects.prefetch_related(
+    Prefetch(
+        "authors",
+        queryset=Author.objects.filter(active=True)
+    )
+)
+
+for book in books:
+    for author in book.authors.all():
+        print(author.name)
+```
 
 ## Uso incorrecto de count() 🔢
 El método count() devuelve un **número entero** que representa la cantidad de objetos en la base de datos que coinciden el QuerySet.
@@ -133,29 +158,43 @@ count() ejecuta SELECT COUNT(*) directamente en la base de datos, mientras que l
 
 
 ## No usar transacciones correctamente 🔒
+Django utiliza autocommit por defecto, lo que significa que cada operación .save(), .create() o .update() se ejecuta como una transacción independiente.
+
+Esto tiene dos consecuencias importantes:
+* Mayor overhead por múltiples commits
+* Riesgo de inconsistencias si ocurre un error a mitad de una operación compleja
+
 Problema común:
 ```python
 for item in items:
+    item.processed = True
     item.save()
 ```
-Al estar dentro de un ciclo for, esto ejecuta una query por cada transacción. Al usar transacciones, esto agrupa todas las queries en una sola transacción.
 
-Esto NO reduce el número de consultas, pero garantiza consistencia y mejora el rendimiento al evitar commits individuales por cada operación.
+Aquí Django ejecuta: 1 UPDATE=1 COMMIT por cada iteración. Si tienes 10.000 objetos, tendrás: 10.000 commits, esto produce overhead innecesario y mayor tiempo total de ejecución
 
-Correcto:
+La solución con transaction.atomic():
+
 ```python
 from django.db import transaction
 
 with transaction.atomic():
     for item in items:
+        item.processed = True
         item.save()
 ```
+
+Ahora Django ejecuta: 10.000 UPDATE = 1 solo COMMIT
 
 
 ## No usar bulk operations 🚀
 Este método inserta la lista de objetos proporcionada en la base de datos de un manera eficiente (generalmente solo 1 consulta, sin importar cuántos objetos tenga), y devuelve los objetos creados como una lista, en el mismo orden proporcionado:
 
 ```python
+users = [
+    User(username="user1"),
+    User(username="user2"),
+]
 User.objects.bulk_create(users)
 ```
 
@@ -219,6 +258,15 @@ Esto permite detectar problemas como:
 * Consultas innecesarias
 * Consultas lentas
 * Falta de índices
+
+
+## No usar django-silk para profiling 🔬
+Optimizar sin medir es uno de los errores más comunes. django-silk es una herramienta de profiling que permite analizar el rendimiento real de tu aplicación. A diferencia de django-debug-toolbar, django-silk:
+
+* Guarda historial de requests
+* Permite analizar queries en detalle
+* Muestra tiempo de ejecución exacto
+* Permite profiling de funciones Python
 
 
 ## Linkografía 📖
