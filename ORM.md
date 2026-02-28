@@ -41,7 +41,7 @@ Este es uno de los problemas más comunes en aplicaciones con grandes volúmenes
 ```python
 User.objects.filter(email="test@gmail.com")
 ```
-Sin índices ocurre un escaneo de toda la tabla. En producción con millones de filas provoca una degradación severa del rendimiento.
+Sin índices, ocurre un escaneo completo de la tabla. En producción con millones de filas provoca una degradación severa del rendimiento.
 
 Para agregar un índice en el ORM de Django, debes usar:
 ```python
@@ -62,7 +62,7 @@ Un uso correcto de es verificar su existencia con `exists()`:
 ```python
 if qs.exists():
 ```
-El método `exists()` es útil para búsquedas relacionadas con la existencia de objetos en un QuerySet; devuelve "True" si el QuerySet contiene resultados y "False" si no. Intenta ejecutar la consulta de la forma más sencilla y rápida posible.
+El método `exists()` es útil para búsquedas relacionadas con la existencia de objetos en un QuerySet; devuelve "True" si el QuerySet contiene resultados y "False" si no. Intenta ejecutar la consulta de la forma más sencilla y rápida posible. No es adecuado cuando necesitas acceder a los objetos posteriormente.
 
 
 ## Cargar datos innecesarios (overfetching) 📦
@@ -72,7 +72,7 @@ Al realizar una consulta donde necesitas todos los datos de una tabla. Ejecutar�
 users = User.objects.all()
 ```
 
-Pero ¿Y si solo necesitas el name (además del id)? Deberias llamar solo a ese dato. Para eso existe `only()`, `values()` o `values_list()` dependiendo del tipo de estructura de datos que quieras retornar:
+Pero ¿Y si solo necesitas el name (además del id)? Deberias solicitar solo a ese dato. Para eso existe `only()`, `values()` o `values_list()` dependiendo del tipo de estructura de datos que quieras retornar:
 
 ```python
 # Retorna una instancia del modelo
@@ -103,7 +103,7 @@ Ejemplo:
 Post.objects.select_related("author")
 ```
 
-En cambio **prefetch_related()** ejecuta consultas de base de datos separadas y combina los resultados en Python. Más adecuado para ManyToMany, reverse ForeignKey, reverse OneToOne
+En cambio **prefetch_related()** ejecuta consultas de base de datos separadas y combina los resultados en Python. Más adecuado para relaciones ManyToMany, ForeignKey inversas y OneToOne inversas
 
 Ejemplo:
 ```python
@@ -140,7 +140,7 @@ for book in books:
 ```
 
 ## Uso incorrecto de count() 🔢
-El método `count()` devuelve un **número entero** que representa la cantidad de objetos en la base de datos que coinciden el QuerySet.
+El método `count()` devuelve un **número entero** que representa la cantidad de objetos en la base de datos que coinciden con el QuerySet.
 
 Ejemplo:
 ```python
@@ -168,7 +168,7 @@ for item in items:
     item.save()
 ```
 
-Aquí Django ejecuta: 1 UPDATE=1 COMMIT por cada iteración. Si tienes 10.000 objetos, tendrás: 10.000 commits, esto produce overhead innecesario y mayor tiempo total de ejecución
+Aquí Django ejecuta: 1 UPDATE = 1 COMMIT por cada iteración. Si tienes 10.000 objetos, tendrás: 10.000 commits, esto produce overhead innecesario y mayor tiempo total de ejecución
 
 La solución con transaction.atomic():
 
@@ -181,11 +181,11 @@ with transaction.atomic():
         item.save()
 ```
 
-Ahora Django ejecuta: 10.000 UPDATE = 1 solo COMMIT
+Ahora Django ejecuta: 10.000 UPDATE = 1 solo COMMIT, pero no reduce las queries
 
 
 ## No usar bulk operations 🚀
-Este método inserta la lista de objetos proporcionada en la base de datos de un manera eficiente (generalmente solo 1 consulta, sin importar cuántos objetos tenga), y devuelve los objetos creados como una lista, en el mismo orden proporcionado:
+Este método inserta la lista de objetos proporcionada en la base de datos de manera eficiente y devuelve los objetos creados como una lista, en el mismo orden proporcionado:
 
 ```python
 users = [
@@ -222,7 +222,7 @@ for post in posts:
     print(post.title, post.comment_count)
 ```
 
-Esto genera una sola consulta SQL, ya que el conteo se realiza en la base de datos.
+Esto genera una consulta SQL, ya que el conteo se realiza en la base de datos.
 
 Ventajas:
 * Reduce el número de consultas
@@ -273,3 +273,4 @@ Optimizar sin medir es uno de los errores más comunes. `django-silk` es una her
 * https://docs.djangoproject.com/en/6.0/ref/models/querysets/#count
 * https://docs.djangoproject.com/en/6.0/topics/db/transactions/
 * https://docs.djangoproject.com/en/6.0/ref/models/querysets/#bulk-create
+
